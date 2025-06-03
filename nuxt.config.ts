@@ -25,13 +25,14 @@ export default defineNuxtConfig({
       sessionCookie: false
     },
     config: {
-       apiKey: "AIzaSyDTuhfiCzvjAbxdwZgY0fT4BdaNVcJ183A",
-        authDomain: "learnity-27666.firebaseapp.com",
-        projectId: "learnity-27666",
-        storageBucket: "learnity-27666.firebasestorage.app",
-        messagingSenderId: "494494776959",
-        appId: "1:494494776959:web:181094ff9714c746ce894a",
-        measurementId: "G-MMLQ3THHQD"
+      // Đọc các giá trị từ biến môi trường
+      apiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY,
+      authDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.NUXT_PUBLIC_FIREBASE_PROJECT_ID,
+      storageBucket: process.env.NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.NUXT_PUBLIC_FIREBASE_APP_ID,
+      measurementId: process.env.NUXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
     },
   }
 })
