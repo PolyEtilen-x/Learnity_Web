@@ -328,7 +328,6 @@ onMounted(async () => {
   min-height: 100vh;
 }
 
-/* Sidebar Styles */
 .sidebar {
   width: 245px;
   position: fixed;

@@ -22,10 +22,11 @@ const isSidebarCollapsed = ref(false)
 const navItems = ref([
   { icon: 'mdi:home', label: 'Trang chủ', key: 'home', active: true },
   { icon: 'mdi:magnify', label: 'Tìm kiếm', key: 'search', active: false },
-  { icon: 'mdi:message-outline', label: 'Tin nhắn', key: 'messages', active: false },
+  { icon: 'mdi:chat-outline', label: 'Tin nhắn', key: 'messages', active: false },
   { icon: 'mdi:heart-outline', label: 'Thông báo', key: 'notifications', active: false },
   { icon: 'mdi:plus-box-outline', label: 'Tạo', key: 'create', active: false },
-  { icon: 'mdi:account-circle-outline', label: 'Hồ sơ', key: 'profile', active: false }
+  { icon: 'mdi:account-circle-outline', label: 'Hồ sơ', key: 'profile', active: false },
+  { icon: 'mdi:account-group-outline', label: 'Nhóm', key: 'group', active: false }
 ])
 
 // click navigation
