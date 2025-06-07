@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useAppStyles } from '~/composables/useAppStyles'
 import { useTheme } from '~/composables/useTheme'
 
@@ -15,31 +15,34 @@ const emit = defineEmits(['logout', 'navigate', 'create-post'])
 const { colors, textStyles, backgrounds } = useAppStyles()
 const { isDarkMode } = useTheme()
 
-const sidebarCollapsed = ref(false)
+// sidebar status (Collapse)
+const isSidebarCollapsed = ref(false)
 
-// Navigation items (removed explore and reels)
-const navItems = [
+// list navigation
+const navItems = ref([
   { icon: 'mdi:home', label: 'Trang chủ', key: 'home', active: true },
-  { icon: 'mdi:magnify', label: 'Tìm kiếm', key: 'search' },
-  { icon: 'mdi:message-outline', label: 'Tin nhắn', key: 'messages' },
-  { icon: 'mdi:heart-outline', label: 'Thông báo', key: 'notifications' },
-  { icon: 'mdi:plus-box-outline', label: 'Tạo', key: 'create' },
-  { icon: 'mdi:account-circle-outline', label: 'Hồ sơ', key: 'profile' }
-]
+  { icon: 'mdi:magnify', label: 'Tìm kiếm', key: 'search', active: false },
+  { icon: 'mdi:message-outline', label: 'Tin nhắn', key: 'messages', active: false },
+  { icon: 'mdi:heart-outline', label: 'Thông báo', key: 'notifications', active: false },
+  { icon: 'mdi:plus-box-outline', label: 'Tạo', key: 'create', active: false },
+  { icon: 'mdi:account-circle-outline', label: 'Hồ sơ', key: 'profile', active: false }
+])
 
+// click navigation
 const handleNavClick = (key) => {
   if (key === 'create') {
     emit('create-post')
   } else {
     emit('navigate', key)
   }
-  
-  // Update active state
-  navItems.forEach(item => item.active = item.key === key)
+  // reload status after click
+  navItems.value.forEach(item => {
+    item.active = item.key === key
+  })
 }
 
 const toggleSidebar = () => {
-  sidebarCollapsed.value = !sidebarCollapsed.value
+  isSidebarCollapsed.value = !isSidebarCollapsed.value
 }
 
 const handleLogout = () => {
@@ -48,50 +51,58 @@ const handleLogout = () => {
 </script>
 
 <template>
-  <nav class="sidebar" :class="{ collapsed: sidebarCollapsed }" :style="{ backgroundColor: backgrounds.main }">
+  <nav class="sidebar" :class="{ collapsed: isSidebarCollapsed }" :style="{ backgroundColor: backgrounds.main }">
     <div class="sidebar-content">
       <div class="logo-section">
         <div class="logo-container">
-          <img 
-            src="/assets/learnity.png"
-            alt="Learnity Logo"
-            class="logo-image"
-          />
+          <img src="/assets/learnity.png" alt="Learnity Logo" class="logo-image" />
         </div>
       </div>
 
-      <!-- Navigation Items -->
       <ul class="nav-list">
         <li v-for="item in navItems" :key="item.key" class="nav-item">
-          <button 
-            @click="handleNavClick(item.key)"
+          <button
             class="nav-button"
             :class="{ active: item.active }"
+            @click="handleNavClick(item.key)"
             :style="{
               ...textStyles.body(),
-              color: item.active ? (isDarkMode ? colors.darkButtonText : colors.buttonText) : (isDarkMode ? colors.darkTextPrimary : colors.textPrimary)
+              color: item.active
+                ? isDarkMode
+                  ? colors.black
+                  : colors.white
+                : isDarkMode
+                  ? colors.darkTextPrimary
+                  : colors.textPrimary
             }"
           >
-            <Icon 
-              :icon="item.icon" 
-              width="24" 
-              height="24" 
-              :color="item.active ? (isDarkMode ? colors.darkButtonText : colors.buttonText) : (isDarkMode ? colors.darkTextPrimary : colors.textPrimary)"
+            <Icon
+              :icon="item.icon"
+              width="24"
+              height="24"
+              :color="
+                item.active
+                  ? isDarkMode
+                    ? colors.black
+                    : colors.white
+                  : isDarkMode
+                    ? colors.darkTextPrimary
+                    : colors.textPrimary
+              "
             />
-            <span v-if="!sidebarCollapsed" class="nav-label">{{ item.label }}</span>
+            <span v-if="!isSidebarCollapsed" class="nav-label">{{ item.label }}</span>
           </button>
         </li>
       </ul>
 
-      <!-- User Profile -->
       <div class="user-section" v-if="currentUser">
         <button class="user-button" :style="textStyles.body()">
-          <img 
-            :src="currentUser.avatarUrl || '/default-avatar.png'" 
+          <img
+            :src="currentUser.avatarUrl || '/plugins/default-avatar.png'"
             :alt="currentUser.displayName"
             class="user-avatar"
           />
-          <div v-if="!sidebarCollapsed" class="user-info">
+          <div v-if="!isSidebarCollapsed" class="user-info">
             <span class="user-name" :style="{ color: isDarkMode ? colors.darkTextPrimary : colors.textPrimary }">
               {{ currentUser.displayName }}
             </span>
@@ -100,27 +111,27 @@ const handleLogout = () => {
             </span>
           </div>
         </button>
-        <button 
-          @click="handleLogout" 
-          class="logout-button" 
-          v-if="!sidebarCollapsed"
+        <button
+          v-if="!isSidebarCollapsed"
+          class="logout-button"
+          @click="handleLogout"
           :style="{ color: '#EF4444' }"
         >
-          <Icon icon="mdi:logout" width="20" height="20" />
+          <Icon icon="mdi:logout" width="24" height="24" />
         </button>
       </div>
 
-      <!-- Collapse Toggle -->
-      <button 
-        @click="toggleSidebar" 
+      <!-- Collapse Toggle Button -->
+      <button
         class="collapse-toggle"
-        :style="{ 
+        @click="toggleSidebar"
+        :style="{
           backgroundColor: isDarkMode ? colors.darkBackground : colors.white,
           borderColor: isDarkMode ? colors.darkTextThird : '#E5E5E5',
           color: isDarkMode ? colors.darkTextPrimary : colors.textPrimary
         }"
       >
-        <Icon :icon="sidebarCollapsed ? 'mdi:chevron-right' : 'mdi:chevron-left'" width="20" height="20" />
+        <Icon :icon="isSidebarCollapsed ? 'mdi:chevron-right' : 'mdi:chevron-left'" width="24" height="24" />
       </button>
     </div>
   </nav>
@@ -129,37 +140,17 @@ const handleLogout = () => {
 <style scoped>
 .sidebar {
   width: 245px;
+  height: 100vh;
   position: fixed;
   left: 0;
   top: 0;
-  height: 100vh;
-  border-right: 1px solid #E5E5E5;
+  border-right: 1px solid #e5e5e5;
   transition: width 0.3s ease;
   z-index: 100;
 }
 
 .sidebar.collapsed {
   width: 72px;
-}
-.logo-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-
-.logo-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 120px;
-  height: 120px;
-}
-
-.logo-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
 }
 
 .sidebar-content {
@@ -172,22 +163,19 @@ const handleLogout = () => {
 .logo-section {
   margin-bottom: 32px;
   padding: 0 8px;
+  display: flex;
+  justify-content: center;
 }
 
 .logo-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  width: 120px;
+  height: 120px;
 }
 
-.logo h1 {
-  margin: 0;
-  font-size: 28px;
-}
-
-.logo-icon {
-  display: flex;
-  justify-content: center;
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .nav-list {
@@ -211,7 +199,7 @@ const handleLogout = () => {
   background: none;
   cursor: pointer;
   border-radius: 12px;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
 .nav-button:hover {
@@ -219,12 +207,11 @@ const handleLogout = () => {
 }
 
 .nav-button.active {
-  background-color: rgba(15, 42, 25, 0.1);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .nav-label {
   font-size: 16px;
-  white-space: nowrap;
 }
 
 .user-section {
@@ -232,7 +219,7 @@ const handleLogout = () => {
   align-items: center;
   gap: 8px;
   padding: 12px 8px;
-  border-top: 1px solid #E5E5E5;
+  border-top: 1px solid #e5e5e5;
   margin-top: auto;
 }
 
@@ -264,10 +251,10 @@ const handleLogout = () => {
 
 .user-name {
   font-weight: 500;
+  font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 14px;
 }
 
 .user-username {
@@ -285,6 +272,7 @@ const handleLogout = () => {
   border-radius: 6px;
 }
 
+/* Collapse toggle button */
 .collapse-toggle {
   position: absolute;
   right: -12px;
@@ -300,14 +288,14 @@ const handleLogout = () => {
   justify-content: center;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .sidebar {
     width: 72px;
   }
-  
-  .sidebar .nav-label,
-  .sidebar .user-info {
+
+  .nav-label,
+  .user-info,
+  .logout-button {
     display: none;
   }
 }

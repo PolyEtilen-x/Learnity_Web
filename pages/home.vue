@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useFirebaseAuth, useCurrentUser } from 'vuefire'
-import { collection, getDocs, query, orderBy, addDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, getDocs, query, orderBy, addDoc, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { signOut } from 'firebase/auth'
 import { useFirestore } from 'vuefire'
 import { useAppStyles } from '~/composables/useAppStyles'
@@ -84,9 +84,9 @@ const createPost = async () => {
   try {
     await addDoc(collection(db, 'posts'), {
       content: newPostContent.value,
-      authorId: user.value.uid,
-      authorName: currentUser.value?.displayName || 'Người dùng',
-      authorAvatar: currentUser.value?.avatarUrl || '',
+      uid: user.value.uid,
+      username: currentUser.value?.displayName || 'Người dùng',
+      avatarUrl: currentUser.value?.avatarUrl || '',
       createdAt: serverTimestamp(),
       likes: 0,
       comments: 0,
@@ -234,12 +234,12 @@ onMounted(async () => {
             <div class="post-header">
               <div class="post-author">
                 <img 
-                  :src="post.authorAvatar || '/default-avatar.png'" 
-                  :alt="post.authorName"
+                  :src="post.avatarUrl || '/default-avatar.png'" 
+                  :alt="post.username"
                   class="author-avatar"
                 />
                 <div class="author-info">
-                  <h4 :style="textStyles.subtitle()">{{ post.authorName }}</h4>
+                  <h4 :style="textStyles.subtitle()">{{ post.username }}</h4>
                   <p :style="textStyles.caption()">{{ formatTimeAgo(post.createdAt) }}</p>
                 </div>
               </div>

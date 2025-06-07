@@ -110,7 +110,6 @@ export const useAppStyles = () => {
     })
   }
 
-  // Background styles
   const backgrounds = computed(() => ({
     main: isDarkMode.value ? colors.value.darkBackground : colors.value.background,
     secondary: isDarkMode.value ? colors.value.darkBackgroundSecond : colors.value.backgroundSecond,

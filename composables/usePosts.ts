@@ -1,15 +1,25 @@
-import { collection, getDocs, query, orderBy } from 'firebase/firestore'
-import { signOut } from 'firebase/auth'
+import { ref } from 'vue'
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { useFirestore } from 'vuefire'
-import { mapFirebasePost, PostModel } from '~/models/post_models'
+import { mapFirebasePost, type PostModel } from '~/models/post_models'
 
-export async function usePosts() {
-  const posts = ref<PostModel[]>([])
-  const postCollection = collection(db, 'posts')
-  const q = query(postCollection, orderBy('createdAt', 'desc'))
+export type { PostModel }
 
-  const snapshot = await getDocs(q)
-  posts.value = snapshot.docs.map(mapFirebasePost)
+export function usePosts() {
+  const db = useFirestore() 
+  const posts = ref<PostModel[]>([]) 
+  const postCollection = collection(db, 'posts') 
+  const q = query(postCollection, orderBy('createdAt', 'desc')) 
 
-  return { posts }
+  const unsubscribe = onSnapshot(
+    q,
+    (snapshot) => {
+      posts.value = snapshot.docs.map(mapFirebasePost)
+    },
+    (error) => {
+      console.error('Error fetching posts:', error)
+    }
+  )
+
+  return { posts, unsubscribe }
 }

@@ -175,7 +175,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useAppStyles } from '~/composables/useAppStyles'
-import { useFirebaseAuth } from '~/composables/useFirebaseAuth' // sử dụng composable tương tự ví dụ
+import { useFirebaseAuth } from '~/composables/useFirebaseAuth'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -242,8 +242,23 @@ const validateForm = (): boolean => {
     errors.value.confirmPassword = 'Mật khẩu không khớp'
   }
 
-  // Nếu mọi trường trống, tức không có thông báo lỗi → form hợp lệ
   return Object.values(errors.value).every(err => err === '')
+}
+
+// Xử lý lỗi Firebase
+const handleFirebaseError = (error: any): string => {
+  switch (error.code) {
+    case 'auth/email-already-in-use':
+      return 'Email đã được sử dụng'
+    case 'auth/invalid-email':
+      return 'Email không hợp lệ'
+    case 'auth/weak-password':
+      return 'Mật khẩu quá yếu'
+    case 'auth/operation-not-allowed':
+      return 'Phương thức đăng ký này không được phép'
+    default:
+      return error.message || 'Đăng ký thất bại. Vui lòng thử lại.'
+  }
 }
 
 // Form Register
@@ -252,12 +267,10 @@ const handleRegister = async () => {
 
   loading.value = true
   try {
-    // call Firebase
     await registerWithEmail(email.value, password.value, username.value)
-    await router.push('/login')
+    await router.push('/home') // Chuyển đến trang chính sau khi đăng ký
   } catch (err: any) {
-    const msg = err?.message || 'Đăng ký thất bại. Vui lòng thử lại.'
-    errors.value.email = msg
+    errors.value.email = handleFirebaseError(err)
   } finally {
     loading.value = false
   }
@@ -266,11 +279,10 @@ const handleRegister = async () => {
 const handleGoogleRegister = async () => {
   loading.value = true
   try {
-    await signInWithGoogleAndSave() 
+    await signInWithGoogleAndSave()
     await router.push('/home')
   } catch (err: any) {
-    const msg = err?.message || 'Đăng ký Google thất bại'
-    errors.value.username = msg 
+    errors.value.username = handleFirebaseError(err)
   } finally {
     loading.value = false
   }
